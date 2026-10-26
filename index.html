@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3f5ed">
+    <title>Dino Runner</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="src/game.js"></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <a class="wordmark" href="./" aria-label="Dino Runner home">
+          <span class="wordmark-mark" aria-hidden="true">D</span>
+          <span>Dino Runner</span>
+        </a>
+        <span class="build-label">Prototype 01</span>
+      </header>
+
+      <section class="game" aria-labelledby="game-title">
+        <div class="game-heading">
+          <div>
+            <p class="eyebrow">Three-lane runner / keyboard test</p>
+            <h1 id="game-title">Find your line.</h1>
+          </div>
+          <div class="score-box" aria-live="polite">
+            <span class="score-label">DISTANCE</span>
+            <span class="score-value" id="score">00000</span>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="game-canvas" width="800" height="500" aria-label="Dino Runner game. Use left and right to change lanes, Space to jump, and Down to duck."></canvas>
+        </div>
+
+        <div class="game-controls">
+          <p class="key-hint"><kbd>←</kbd> <kbd>→</kbd><span>lane</span><kbd>SPACE</kbd><span>jump</span><kbd>↓</kbd><span>duck</span></p>
+          <button id="start-button" type="button"><span id="start-label">Start run</span><span aria-hidden="true">↗</span></button>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>Built for the open road.</span>
+        <span>Keyboard input · No camera active</span>
+      </footer>
+    </main>
+  </body>
+</html>
