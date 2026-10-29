@@ -102,7 +102,7 @@ export function createRenderer(canvas) {
     const centerX = laneCenter(obstacle.lane, projection.depth);
     const baseY = projection.y;
     const obstacleWidth = (obstacle.kind === 'crate' ? 42 : obstacle.kind === 'hurdle' ? 58 : 34) * scale;
-    const obstacleHeight = (obstacle.kind === 'crate' ? 46 : obstacle.kind === 'hurdle' ? 64 : 54) * scale;
+    const obstacleHeight = (obstacle.kind === 'crate' ? 46 : obstacle.kind === 'hurdle' ? 64 : obstacle.kind === 'largeCactus' ? 108 : 54) * scale;
 
     context.fillStyle = 'rgba(32, 33, 36, 0.18)';
     context.beginPath();
@@ -134,6 +134,22 @@ export function createRenderer(canvas) {
       context.moveTo(centerX + obstacleWidth / 2 - 5 * scale, baseY - obstacleHeight + 5 * scale);
       context.lineTo(centerX - obstacleWidth / 2 + 5 * scale, baseY - 5 * scale);
       context.stroke();
+      return;
+    }
+
+    if (obstacle.kind === 'largeCactus') {
+      const trunkWidth = 14 * scale;
+      const branchThickness = 7 * scale;
+      const branchLength = 14 * scale;
+
+      context.fillRect(centerX - trunkWidth / 2, baseY - obstacleHeight, trunkWidth, obstacleHeight);
+      for (const [side, heightRatio] of [[-1, 0.84], [1, 0.66], [-1, 0.44], [1, 0.22]]) {
+        const branchY = baseY - obstacleHeight * heightRatio;
+        const branchX = side < 0 ? centerX - trunkWidth / 2 - branchLength : centerX + trunkWidth / 2;
+        const tipX = side < 0 ? branchX : branchX + branchLength - branchThickness;
+        context.fillRect(branchX, branchY, branchLength, branchThickness);
+        context.fillRect(tipX, branchY - branchLength, branchThickness, branchLength);
+      }
       return;
     }
 

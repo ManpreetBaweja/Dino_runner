@@ -19,7 +19,9 @@ const scoreDisplay = document.querySelector('#score');
 const startButton = document.querySelector('#start-button');
 const startLabel = document.querySelector('#start-label');
 
-const forwardSpeed = 300;
+const baseSpeed = 300;
+const speedIncrease = 10;
+const distancePerLevel = 300;
 const player = createPlayer();
 const obstacles = [];
 
@@ -79,16 +81,17 @@ function endGame() {
 }
 
 function spawnObstacle() {
-  const obstacleType = Math.random();
-  const kind = obstacleType < 0.24 ? 'hurdle' : obstacleType < 0.62 ? 'crate' : 'cactus';
+  const kinds = ['hurdle', 'crate', 'cactus', 'largeCactus'];
+  const kind = kinds[Math.floor(Math.random() * kinds.length)];
   obstacles.push(createObstacle(Math.floor(Math.random() * 3), nextObstacleDistance - distance, kind));
   nextObstacleDistance += randomGap();
 }
 
 function update(delta) {
   if (state !== 'playing') return;
-
-  const traveled = forwardSpeed * delta;
+  const level = Math.floor(distance / distancePerLevel);
+  const speed = baseSpeed + level * speedIncrease;
+  const traveled = speed * delta;
   distance += traveled;
   score = distance * 0.1;
   updatePlayer(player, delta);

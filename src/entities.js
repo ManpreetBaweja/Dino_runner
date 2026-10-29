@@ -43,6 +43,10 @@ export function advanceObstacles(obstacles, distance) {
 export function obstacleHitsPlayer(player, obstacle) {
   const inCollisionRange = obstacle.distance <= 48 && obstacle.distance >= -24;
   const inPlayerLane = obstacle.lane === player.lane;
-  const avoided = obstacle.kind === 'hurdle' ? player.ducking : player.jumpHeight >= 35;
+  const avoided = obstacle.kind === 'largeCactus'
+    ? false
+    : obstacle.kind === 'hurdle'
+      ? player.ducking
+      : player.jumpHeight >= 35;
   return inCollisionRange && inPlayerLane && !avoided;
 }
