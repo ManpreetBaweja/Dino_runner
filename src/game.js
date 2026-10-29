@@ -90,7 +90,7 @@ function spawnObstacle() {
 function update(delta) {
   if (state !== 'playing') return;
   const level = Math.floor(distance / distancePerLevel);
-  const speed = baseSpeed + level * speedIncrease;
+  const speed = Math.min(baseSpeed + level * speedIncrease, 800);
   const traveled = speed * delta;
   distance += traveled;
   score = distance * 0.1;
