@@ -144,20 +144,57 @@ h1 {
 .canvas-wrap {
   flex: 1 1 auto;
   min-height: 0;
-  width: min(75vw, 1400px);
+  width: 100%;
   margin: 0 auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
+  gap: 24px;
   container-type: size;
 }
 
-canvas {
+.canvas-wrap.camera-active {
+  grid-template-columns: minmax(0, 1fr) 240px;
+}
+
+#game-canvas {
   display: block;
   width: min(100%, 160cqh);
   height: auto;
   border: 1px solid var(--line);
   background: var(--paper);
+  justify-self: center;
+}
+
+.camera-preview {
+  position: relative;
+  width: 240px;
+  height: 180px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  justify-self: center;
+}
+
+.camera-preview[hidden] {
+  display: none;
+}
+
+.camera-preview video {
+  display: none;
+}
+
+.camera-preview canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+}
+
+#pose-canvas {
+  border: 0;
+  background: var(--soft);
 }
 
 .game-controls {
@@ -167,6 +204,36 @@ canvas {
   justify-content: space-between;
   gap: 20px;
   padding-top: 10px;
+}
+
+.control-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#camera-status {
+  max-width: 240px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+#camera-button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#camera-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .key-hint {
@@ -261,6 +328,23 @@ kbd {
     gap: 8px;
   }
 
+  .control-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  #camera-status {
+    width: 100%;
+    text-align: right;
+  }
+
+  #camera-button {
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
   .canvas-wrap {
     width: 100%;
   }
@@ -293,6 +377,14 @@ kbd {
     justify-content: center;
     gap: 2px;
     font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) and (min-height: 600px) {
+  .canvas-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 8px;
   }
 }
 

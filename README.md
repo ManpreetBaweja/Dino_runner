@@ -1,16 +1,16 @@
 # Dino Runner
 
-A small, browser-based endless runner prototype. The first milestone uses keyboard input only; camera controls will be added after the core game feels good.
+A small, browser-based endless runner prototype with keyboard controls and experimental MediaPipe face-motion controls.
 
 ## Run locally
 
-Open `index.html` in a browser, or serve this folder with any static web server. For example, if Python is installed:
+Serve this folder with a static web server. Camera access requires `localhost` during development or HTTPS after deployment. For example, if Python is installed:
 
 ```powershell
 py -m http.server 8000
 ```
 
-Then visit [http://localhost:8000](http://localhost:8000).
+Then visit [http://localhost:8000](http://localhost:8000). Select **Enable camera** and allow camera access. Hold a neutral face position for the two-second calibration; then raise your face to jump and lower it to duck.
 
 ## Controls
 
@@ -19,10 +19,15 @@ Then visit [http://localhost:8000](http://localhost:8000).
 - Hold `Arrow Down` or `S`: duck under hurdles
 - Select **Start run** / **Run again** with the mouse or touch
 
-The game is plain HTML, CSS, and JavaScript. It has no build step and no package dependencies.
+With the camera enabled, hold a neutral face position for the two-second calibration; raise your face to jump and lower it to duck. Keyboard controls remain available while camera control is active.
+
+The game uses plain HTML, CSS, and JavaScript with no build step. The MediaPipe runtime, WASM files, and Lite pose model are stored in the repository and run in the browser; camera video is not uploaded.
 
 ## Code layout
 
 - `src/game.js`: run state, keyboard input, obstacle spawning, scoring, and the animation loop
 - `src/entities.js`: player and obstacle state, movement, and collision rules
 - `src/renderer.js`: canvas scene, perspective projection, and sprite drawing
+- `src/pose.js`: camera lifecycle and MediaPipe Pose Landmarker
+- `src/pose-preview.js`: skeleton preview rendering
+- `src/gestures.js`: face-based calibration, smoothing, and jump/duck gesture detection

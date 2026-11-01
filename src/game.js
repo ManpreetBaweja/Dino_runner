@@ -12,12 +12,23 @@ import {
   VIEW_DISTANCE,
 } from './entities.js';
 import { createRenderer } from './renderer.js';
+import { createGestureController } from './gestures.js';
+import { createPosePreview } from './pose-preview.js';
+import { startPoseTracking } from './pose.js';
 
 const canvas = document.querySelector('#game-canvas');
 const renderer = createRenderer(canvas);
 const scoreDisplay = document.querySelector('#score');
 const startButton = document.querySelector('#start-button');
 const startLabel = document.querySelector('#start-label');
+const cameraButton = document.querySelector('#camera-button');
+const cameraStatus = document.querySelector('#camera-status');
+const cameraVideo = document.querySelector('#camera-video');
+const cameraPreview = document.querySelector('#camera-preview');
+const canvasWrap = document.querySelector('.canvas-wrap');
+const poseCanvas = document.querySelector('#pose-canvas');
+const posePreview = createPosePreview(poseCanvas, cameraStatus);
+const gestureController = createGestureController();
 
 const baseSpeed = 300;
 const speedIncrease = 10;
@@ -31,6 +42,10 @@ let score = 0;
 let nextObstacleDistance = 0;
 let lastFrame = 0;
 let animationFrame = 0;
+let stopPoseTracking;
+let keyboardDucking = false;
+let cameraDucking = false;
+let appliedDucking = false;
 
 function formatScore(value) {
   return Math.floor(value).toString().padStart(5, '0');
@@ -45,6 +60,8 @@ function resetGame() {
   distance = 0;
   score = 0;
   resetPlayer(player);
+  appliedDucking = keyboardDucking || cameraDucking;
+  if (appliedDucking) setPlayerDucking(player, true);
   obstacles.length = 0;
   nextObstacleDistance = 680 + Math.random() * 170;
   scoreDisplay.textContent = formatScore(score);
@@ -63,7 +80,11 @@ function jump() {
   if (state === 'playing') jumpPlayer(player);
 }
 
-function setDucking(ducking) {
+function updateDucking() {
+  const ducking = keyboardDucking || cameraDucking;
+  if (ducking === appliedDucking) return;
+
+  appliedDucking = ducking;
   if (ducking) startIfNeeded();
   if (state === 'playing') setPlayerDucking(player, ducking);
 }
@@ -116,6 +137,69 @@ function draw() {
   renderer.draw({ player, obstacles, distance, state, score });
 }
 
+async function enableCamera() {
+  cameraButton.disabled = true;
+  cameraStatus.textContent = 'Starting camera and pose model...';
+  gestureController.reset();
+  try {
+    stopPoseTracking = await startPoseTracking(
+      cameraVideo,
+      (results) => {
+        posePreview.draw(results);
+        const gesture = gestureController.update(results?.landmarks?.[0], performance.now());
+        if (gesture.phase === 'waiting') {
+          cameraStatus.textContent = 'Camera on · looking for a face...';
+        } else if (gesture.phase === 'calibrating') {
+          const secondsLeft = Math.ceil((1 - gesture.progress) * 2);
+          cameraStatus.textContent = `Calibrating · hold still (${secondsLeft})`;
+        } else if (gesture.phase === 'ready') {
+          cameraStatus.textContent = 'Face calibrated · rise to jump, crouch to duck';
+        } else if (!results?.landmarks?.[0]) {
+          cameraStatus.textContent = 'Face not detected · keyboard still works';
+        } else {
+          cameraStatus.textContent = 'Face calibrated · rise to jump, crouch to duck';
+        }
+
+        if (gesture.action === 'jump') jump();
+        cameraDucking = gesture.ducking;
+        updateDucking();
+      },
+      (error) => {
+        gestureController.reset();
+        cameraDucking = false;
+        updateDucking();
+        cameraButton.disabled = false;
+        cameraButton.textContent = 'Enable camera';
+        cameraPreview.hidden = true;
+        canvasWrap.classList.remove('camera-active');
+        cameraStatus.textContent = `Pose tracking stopped: ${error.message}`;
+        stopPoseTracking = undefined;
+      },
+    );
+    cameraPreview.hidden = false;
+    canvasWrap.classList.add('camera-active');
+    cameraButton.disabled = false;
+    cameraButton.textContent = 'Disable camera';
+    cameraStatus.textContent = 'Camera on · looking for a pose...';
+  } catch (error) {
+    cameraButton.disabled = false;
+    cameraStatus.textContent = `Could not start camera: ${error.message}`;
+  }
+}
+
+function disableCamera() {
+  stopPoseTracking?.();
+  stopPoseTracking = undefined;
+  gestureController.reset();
+  cameraDucking = false;
+  updateDucking();
+  posePreview.clear();
+  cameraPreview.hidden = true;
+  canvasWrap.classList.remove('camera-active');
+  cameraButton.textContent = 'Enable camera';
+  cameraStatus.textContent = 'Camera off · video stays on this device';
+}
+
 function frame(now) {
   const delta = Math.min((now - lastFrame) / 1000, 0.04);
   lastFrame = now;
@@ -126,6 +210,14 @@ function frame(now) {
 
 startButton.addEventListener('click', () => {
   if (state !== 'playing') resetGame();
+});
+
+cameraButton.addEventListener('click', () => {
+  if (stopPoseTracking) {
+    disableCamera();
+  } else {
+    enableCamera();
+  }
 });
 
 window.addEventListener('keydown', (event) => {
@@ -140,17 +232,29 @@ window.addEventListener('keydown', (event) => {
     jump();
   } else if (event.code === 'ArrowDown' || event.code === 'KeyS') {
     event.preventDefault();
-    if (!event.repeat) setDucking(true);
+    if (!event.repeat) {
+      keyboardDucking = true;
+      updateDucking();
+    }
   }
 });
 
 window.addEventListener('keyup', (event) => {
-  if (event.code === 'ArrowDown' || event.code === 'KeyS') setDucking(false);
+  if (event.code === 'ArrowDown' || event.code === 'KeyS') {
+    keyboardDucking = false;
+    updateDucking();
+  }
 });
 
-window.addEventListener('blur', () => setDucking(false));
+window.addEventListener('blur', () => {
+  keyboardDucking = false;
+  updateDucking();
+});
 
 lastFrame = performance.now();
 animationFrame = requestAnimationFrame(frame);
 
-window.addEventListener('pagehide', () => cancelAnimationFrame(animationFrame));
+window.addEventListener('pagehide', () => {
+  cancelAnimationFrame(animationFrame);
+  stopPoseTracking?.();
+});
