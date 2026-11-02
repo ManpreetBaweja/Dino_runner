@@ -195,6 +195,7 @@ h1 {
 #pose-canvas {
   border: 0;
   background: var(--soft);
+  pointer-events: none;
 }
 
 .game-controls {
@@ -209,17 +210,27 @@ h1 {
 .control-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 #camera-status {
-  max-width: 240px;
+  max-width: 260px;
   color: var(--muted);
   font-family: var(--mono);
   font-size: 10px;
 }
 
-#camera-button {
+.run-actions,
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.run-actions button,
+.session-actions button {
   min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--line);
@@ -229,11 +240,38 @@ h1 {
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
+  transition: background 140ms ease, transform 140ms ease;
 }
 
-#camera-button:disabled {
+.run-actions button:disabled,
+.session-actions button:disabled {
   cursor: wait;
   opacity: 0.6;
+}
+
+#video-run-button {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+#video-run-button:hover:not(:disabled) {
+  background: #3c4043;
+}
+
+.run-actions button:hover:not(:disabled),
+.session-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.run-actions button:focus-visible,
+.session-actions button:focus-visible {
+  outline: 2px solid var(--muted);
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .key-hint {
@@ -258,35 +296,6 @@ kbd {
 
 .key-hint span {
   margin-left: 3px;
-}
-
-#start-button {
-  min-height: 44px;
-  padding: 0 17px;
-  border: 0;
-  border-radius: 2px;
-  background: var(--ink);
-  color: var(--paper);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  transition: background 140ms ease, transform 140ms ease;
-}
-
-#start-button span:last-child {
-  margin-left: 14px;
-  color: #dfe1e5;
-  font-size: 17px;
-}
-
-#start-button:hover {
-  background: #3c4043;
-  transform: translateY(-1px);
-}
-
-#start-button:focus-visible {
-  outline: 2px solid var(--muted);
-  outline-offset: 3px;
 }
 
 .footer {
@@ -339,7 +348,15 @@ kbd {
     text-align: right;
   }
 
-  #camera-button {
+  .run-actions,
+  .session-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+
+  .run-actions button,
+  .session-actions button {
     min-height: 38px;
     padding: 0 8px;
     font-size: 11px;
@@ -359,15 +376,6 @@ kbd {
   kbd {
     min-width: 32px;
     padding: 4px 5px;
-  }
-
-  #start-button {
-    min-height: 38px;
-    padding: 0 10px;
-  }
-
-  #start-button span:last-child {
-    margin-left: 6px;
   }
 
   .footer {
@@ -414,9 +422,6 @@ kbd {
     padding-top: 5px;
   }
 
-  #start-button {
-    min-height: 34px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

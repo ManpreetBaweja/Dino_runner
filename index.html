@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f3f5ed">
     <title>Dino Runner</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="module" src="src/game.js"></script>
+    <link rel="stylesheet" href="style.css?v=2">
+    <script type="module" src="src/game/index.js"></script>
   </head>
   <body>
     <main class="page">
@@ -31,7 +31,7 @@
         </div>
 
         <div class="canvas-wrap">
-          <canvas id="game-canvas" width="800" height="500" aria-label="Dino Runner game. Use left and right to change lanes, Space to jump, and Down to duck."></canvas>
+          <canvas id="game-canvas" width="800" height="500" aria-label="Dino Runner. Choose a normal or video-controlled run; use arrow keys to change lanes."></canvas>
           <div class="camera-preview" id="camera-preview" hidden>
             <video id="camera-video" autoplay muted playsinline></video>
             <canvas id="pose-canvas" width="640" height="480" aria-hidden="true"></canvas>
@@ -42,8 +42,14 @@
           <p class="key-hint"><kbd>←</kbd> <kbd>→</kbd><span>lane</span><kbd>SPACE</kbd><span>jump</span><kbd>↓</kbd><span>duck</span></p>
           <div class="control-actions">
             <span id="camera-status" role="status" aria-live="polite">Camera off · video stays on this device</span>
-            <button id="camera-button" type="button">Enable camera</button>
-            <button id="start-button" type="button"><span id="start-label">Start run</span><span aria-hidden="true">↗</span></button>
+            <div class="run-actions">
+              <button id="normal-run-button" type="button">Start normal run</button>
+              <button id="video-run-button" type="button">Start video-controlled run</button>
+            </div>
+            <div class="session-actions">
+              <button id="calibrate-button" type="button" hidden>Calibrate again</button>
+              <button id="pause-button" type="button" hidden>Pause</button>
+            </div>
           </div>
         </div>
       </section>

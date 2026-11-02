@@ -4,10 +4,10 @@ const MIN_LANDMARK_VISIBILITY = 0.5;
 const BACKGROUND_COLOR = '#f1f3f4';
 const FIGURE_COLOR = '#202124';
 
-export function createPosePreview(canvas, statusElement) {
+export function createPosePreview(canvas) {
   const context = canvas.getContext('2d');
 
-  function draw(results) {
+  function draw(results, countdown = null) {
     context.fillStyle = BACKGROUND_COLOR;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -17,7 +17,8 @@ export function createPosePreview(canvas, statusElement) {
       context.font = '16px Arial, sans-serif';
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      context.fillText('Step into view', canvas.width / 2, canvas.height / 2);
+      context.fillText('Center face in frame', canvas.width / 2, canvas.height / 2);
+      drawCalibrationOverlay(countdown);
       return;
     }
 
@@ -44,7 +45,23 @@ export function createPosePreview(canvas, statusElement) {
       context.arc(landmark.x * canvas.width, landmark.y * canvas.height, 5, 0, Math.PI * 2);
       context.fill();
     }
-    statusElement.textContent = `Pose detected · ${landmarks.length} landmarks`;
+    drawCalibrationOverlay(countdown);
+  }
+
+  function drawCalibrationOverlay(countdown) {
+    if (countdown === null) return;
+
+    context.fillStyle = 'rgba(32, 33, 36, 0.4)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.shadowColor = 'rgba(0, 0, 0, 0.55)';
+    context.shadowBlur = 8;
+    context.fillStyle = '#ffffff';
+    context.font = '700 64px Arial, sans-serif';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(String(countdown), canvas.width / 2, canvas.height / 2);
+    context.restore();
   }
 
   function isVisible(landmark) {

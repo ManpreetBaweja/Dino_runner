@@ -1,4 +1,4 @@
-const CALIBRATION_DURATION = 2000;
+const CALIBRATION_DURATION = 3000;
 const MIN_LANDMARK_VISIBILITY = 0.5;
 const JUMP_THRESHOLD = 0.75;
 const DUCK_THRESHOLD = 0.75;
@@ -40,6 +40,14 @@ export function createGestureController() {
     smoothedY = null;
     reacquiringFace = false;
     jumpArmed = true;
+    lastJumpAt = -Infinity;
+    ducking = false;
+  }
+
+  function rearm() {
+    smoothedY = null;
+    reacquiringFace = true;
+    jumpArmed = false;
     lastJumpAt = -Infinity;
     ducking = false;
   }
@@ -106,5 +114,5 @@ export function createGestureController() {
     return { phase: 'tracking', action, ducking, progress: 1, rise };
   }
 
-  return { reset, update };
+  return { rearm, reset, update };
 }

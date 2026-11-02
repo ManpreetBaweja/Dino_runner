@@ -1,9 +1,9 @@
-import { FilesetResolver, PoseLandmarker } from '../vendor/mediapipe/vision_bundle.mjs';
+import { FilesetResolver, PoseLandmarker } from '../../vendor/mediapipe/vision_bundle.mjs';
 
 export const poseConnections = PoseLandmarker.POSE_CONNECTIONS;
 
-const wasmRoot = new URL('../vendor/mediapipe/wasm/', import.meta.url).href;
-const modelPath = new URL('../models/pose_landmarker_lite.task', import.meta.url).href;
+const wasmRoot = new URL('../../vendor/mediapipe/wasm/', import.meta.url).href;
+const modelPath = new URL('../../models/pose_landmarker_lite.task', import.meta.url).href;
 
 export async function startPoseTracking(video, onResults, onError) {
   if (!navigator.mediaDevices?.getUserMedia) {
