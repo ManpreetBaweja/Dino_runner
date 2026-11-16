@@ -17,6 +17,10 @@ export function changePlayerLane(player, direction) {
   player.lane = Math.max(0, Math.min(2, player.lane + direction));
 }
 
+export function setPlayerLane(player, lane) {
+  player.lane = Math.max(0, Math.min(2, lane));
+}
+
 export function jumpPlayer(player) {
   if (player.jumpHeight === 0 && !player.ducking) player.velocityY = 580;
 }

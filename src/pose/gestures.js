@@ -1,8 +1,8 @@
 const CALIBRATION_DURATION = 3000;
 const MIN_LANDMARK_VISIBILITY = 0.5;
-const JUMP_THRESHOLD = 0.75;
-const DUCK_THRESHOLD = 0.75;
-const DUCK_RELEASE_THRESHOLD = 0.45;
+const JUMP_THRESHOLD = 4;
+const DUCK_THRESHOLD = 4;
+const DUCK_RELEASE_THRESHOLD = 0;
 const JUMP_COOLDOWN = 600;
 const SMOOTHING = 0.35;
 
@@ -15,12 +15,12 @@ function getFacePosition(landmarks) {
   for (const landmark of [nose, leftEye, rightEye]) {
     if (landmark.visibility !== undefined && landmark.visibility < MIN_LANDMARK_VISIBILITY) return null;
   }
-  if (![nose.y, leftEye.x, leftEye.y, rightEye.x, rightEye.y].every(Number.isFinite)) return null;
+  if (![nose.x, nose.y, leftEye.x, leftEye.y, rightEye.x, rightEye.y].every(Number.isFinite)) return null;
 
   const eyeDistance = Math.hypot(leftEye.x - rightEye.x, leftEye.y - rightEye.y);
   if (eyeDistance <= 0) return null;
 
-  return { y: nose.y, eyeDistance };
+  return { x: nose.x, y: nose.y, eyeDistance };
 }
 
 export function createGestureController() {
@@ -32,6 +32,21 @@ export function createGestureController() {
   let jumpArmed = true;
   let lastJumpAt = -Infinity;
   let ducking = false;
+
+  function getGuides() {
+    if (!baseline) return null;
+
+    return {
+      jumpY: baseline.y - JUMP_THRESHOLD * baseline.eyeDistance,
+      duckY: baseline.y + DUCK_THRESHOLD * baseline.eyeDistance,
+    };
+  }
+
+  function getLane(x) {
+    if (x >= 2 / 3) return 0;
+    if (x <= 1 / 3) return 2;
+    return 1;
+  }
 
   function reset() {
     calibrationStartedAt = null;
@@ -67,6 +82,7 @@ export function createGestureController() {
         phase: baseline ? 'tracking' : 'waiting',
         action: null,
         ducking: false,
+        guides: getGuides(),
         progress: 0,
       };
     }
@@ -88,13 +104,26 @@ export function createGestureController() {
       );
       smoothedY = face.y;
       jumpArmed = true;
-      return { phase: 'ready', action: null, ducking: false, progress: 1 };
+      return {
+        phase: 'ready',
+        action: null,
+        ducking: false,
+        guides: getGuides(),
+        progress: 1,
+      };
     }
 
     if (reacquiringFace) {
       smoothedY = face.y;
       reacquiringFace = false;
-      return { phase: 'tracking', action: null, ducking: false, progress: 1 };
+      return {
+        phase: 'tracking',
+        action: null,
+        ducking: false,
+        guides: getGuides(),
+        lane: getLane(face.x),
+        progress: 1,
+      };
     }
 
     smoothedY += (face.y - smoothedY) * SMOOTHING;
@@ -111,7 +140,15 @@ export function createGestureController() {
     if (rise <= -DUCK_THRESHOLD) ducking = true;
     else if (rise > -DUCK_RELEASE_THRESHOLD) ducking = false;
 
-    return { phase: 'tracking', action, ducking, progress: 1, rise };
+    return {
+      phase: 'tracking',
+      action,
+      ducking,
+      guides: getGuides(),
+      lane: getLane(face.x),
+      progress: 1,
+      rise,
+    };
   }
 
   return { rearm, reset, update };

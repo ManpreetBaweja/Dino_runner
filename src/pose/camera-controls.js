@@ -32,21 +32,23 @@ export function createCameraControls({
     const landmarks = results?.landmarks?.[0];
     const gesture = gestureController.update(landmarks, performance.now());
     const countdown = gesture.phase === 'calibrating'
-      ? Math.max(1, Math.ceil((1 - gesture.progress) * 3))
+      ? Math.ceil((1 - gesture.progress) * 3)
       : null;
-    posePreview.draw(results, countdown);
+    posePreview.draw(results, countdown, gesture);
 
     if (gesture.phase === 'waiting') {
       setStatus('Face not detected · center your face in the preview');
     } else if (gesture.phase === 'calibrating') {
-      setStatus(`Calibrating · hold still (${countdown})`);
+      setStatus(countdown > 0
+        ? `Calibrating · hold still (${countdown})`
+        : 'Finishing calibration · collecting pose samples');
     } else if (gesture.phase === 'ready') {
       setStatus('Calibration complete · starting video-controlled run');
       onCalibrationComplete();
     } else if (!landmarks?.length) {
       setStatus('Face not detected · keyboard still works');
     } else {
-      setStatus('Video controls ready · raise to jump, lower to duck');
+      setStatus('Video controls ready · move across lane lines, raise to jump, lower to duck');
     }
 
     if (gesture.phase !== 'ready') onGesture(gesture);

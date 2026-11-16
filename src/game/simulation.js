@@ -7,6 +7,7 @@ import {
   obstacleHitsPlayer,
   PASSED_DISTANCE,
   resetPlayer,
+  setPlayerLane,
   setPlayerDucking,
   updatePlayer,
   VIEW_DISTANCE,
@@ -79,9 +80,13 @@ export function createGameSimulation(scoreDisplay, onGameOver) {
     changePlayerLane(player, direction);
   }
 
+  function setLane(lane) {
+    setPlayerLane(player, lane);
+  }
+
   function setDucking(ducking) {
     setPlayerDucking(player, ducking);
   }
 
-  return { changeLane, jump, reset, setDucking, snapshot, update };
+  return { changeLane, jump, reset, setDucking, setLane, snapshot, update };
 }

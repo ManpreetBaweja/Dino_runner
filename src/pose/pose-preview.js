@@ -3,13 +3,20 @@ import { poseConnections } from './pose.js';
 const MIN_LANDMARK_VISIBILITY = 0.5;
 const BACKGROUND_COLOR = '#f1f3f4';
 const FIGURE_COLOR = '#202124';
+const GUIDE_COLOR = '#fbbc04';
+const GUIDE_BOUNDARY_COLOR = '#ffffff';
+const GUIDE_DASH = [14, 10];
+const GUIDE_BOUNDARY_WIDTH = 8;
+const GUIDE_WIDTH = 4;
 
 export function createPosePreview(canvas) {
   const context = canvas.getContext('2d');
 
-  function draw(results, countdown = null) {
+  function draw(results, countdown = null, gesture = null) {
     context.fillStyle = BACKGROUND_COLOR;
     context.fillRect(0, 0, canvas.width, canvas.height);
+    drawLaneGuides();
+    drawMovementGuides(gesture);
 
     const landmarks = results?.landmarks?.[0];
     if (!landmarks) {
@@ -46,6 +53,48 @@ export function createPosePreview(canvas) {
       context.fill();
     }
     drawCalibrationOverlay(countdown);
+  }
+
+  function drawLaneGuides() {
+    context.save();
+    context.setLineDash(GUIDE_DASH);
+
+    for (const boundary of [canvas.width / 3, (canvas.width * 2) / 3]) {
+      drawGuideLine(boundary, 0, boundary, canvas.height);
+    }
+
+    context.restore();
+  }
+
+  function drawMovementGuides(gesture) {
+    const guides = gesture?.guides;
+    if (!guides) return;
+
+    drawMovementGuide(guides.jumpY);
+    drawMovementGuide(guides.duckY);
+  }
+
+  function drawMovementGuide(y) {
+    const guideY = y * canvas.height;
+    if (guideY < 0 || guideY > canvas.height) return;
+
+    context.save();
+    context.setLineDash(GUIDE_DASH);
+    drawGuideLine(0, guideY, canvas.width, guideY);
+    context.restore();
+
+  }
+
+  function drawGuideLine(startX, startY, endX, endY) {
+    context.beginPath();
+    context.moveTo(startX, startY);
+    context.lineTo(endX, endY);
+    context.lineWidth = GUIDE_BOUNDARY_WIDTH;
+    context.strokeStyle = GUIDE_BOUNDARY_COLOR;
+    context.stroke();
+    context.lineWidth = GUIDE_WIDTH;
+    context.strokeStyle = GUIDE_COLOR;
+    context.stroke();
   }
 
   function drawCalibrationOverlay(countdown) {

@@ -19,7 +19,7 @@ Then visit [http://localhost:8000](http://localhost:8000). Select **Start video-
 - Hold `Arrow Down` or `S`: duck under hurdles
 - Select **Start normal run** or **Start video-controlled run** to choose a mode
 - `P` or `Escape`, or select **Pause** / **Resume**, to pause and continue
-- In video mode, raise your face to jump and lower it to duck; select **Calibrate again** to recalibrate and begin a fresh run
+- In video mode, move your nose across the dashed lane dividers to select a lane; raise it past the **JUMP** guide to jump and lower it past the **DUCK** guide to duck. Select **Calibrate again** to recalibrate and begin a fresh run
 
 After a video-controlled run ends, **Run again** starts the same mode without recalibration. The other run button switches modes. A new calibration always begins a fresh video-controlled run. Keyboard controls remain available in either mode.
 

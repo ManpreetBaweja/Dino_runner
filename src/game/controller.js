@@ -134,6 +134,9 @@ export function createGameController({
 
   function handleGesture(gesture) {
     if (state === 'playing' && mode === 'video' && gesture.action === 'jump') jump();
+    if (state === 'playing' && mode === 'video' && gesture.lane !== undefined) {
+      simulation.setLane(gesture.lane);
+    }
     cameraDucking = state === 'playing' && mode === 'video' && gesture.ducking;
     updateDucking();
   }

@@ -154,7 +154,48 @@ h1 {
 }
 
 .canvas-wrap.camera-active {
-  grid-template-columns: minmax(0, 1fr) 240px;
+  position: relative;
+}
+
+.canvas-wrap.camera-active #game-canvas {
+  position: absolute;
+  top: 50%;
+  left: 41.6667%;
+  width: min(100%, 160cqh, 66.6667%);
+  transform: translate(-50%, -50%);
+}
+
+.canvas-wrap.camera-active .camera-preview {
+  position: absolute;
+  top: 50%;
+  left: calc(41.6667% + min(33.3333%, 80cqh) + 24px);
+  transform: translateY(-50%);
+}
+
+@media (max-width: 1100px) and (min-height: 600px) {
+  .canvas-wrap.camera-active {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .canvas-wrap.camera-active #game-canvas {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(100%, calc(160cqh - 300.8px));
+    height: auto;
+    transform: none;
+    justify-self: center;
+  }
+
+  .canvas-wrap.camera-active .camera-preview {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    justify-self: center;
+  }
 }
 
 #game-canvas {
@@ -389,7 +430,8 @@ kbd {
 }
 
 @media (max-width: 480px) and (min-height: 600px) {
-  .canvas-wrap {
+  .canvas-wrap,
+  .canvas-wrap.camera-active {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto;
     gap: 8px;
