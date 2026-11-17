@@ -2,6 +2,10 @@
 
 A small, browser-based endless runner prototype with keyboard controls and experimental MediaPipe face-motion controls.
 
+Live Link: https://manpreetbaweja.github.io/Dino_runner/
+
+<img width="955" height="467" alt="image" src="https://github.com/user-attachments/assets/154f87a3-e176-4bb3-a2ab-70cf8f693ec7" />
+
 ## Run locally
 
 Serve this folder with a static web server. Camera access requires `localhost` during development or HTTPS after deployment. For example, if Python is installed:
